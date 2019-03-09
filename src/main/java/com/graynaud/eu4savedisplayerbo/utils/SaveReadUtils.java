@@ -39,6 +39,7 @@ public class SaveReadUtils {
         save.setMapAreaData(extractMapAreaData(data));
         save.setInstitutions(extractInstitutions(data));
         save.setProductionsLeader(extractProductionsLeader(data));
+        save.setGreatPowers(extractGreatPowers(data));
 
         return save;
     }
@@ -175,6 +176,24 @@ public class SaveReadUtils {
         return Arrays.stream(subData.split(" "))
                 .map(String::trim)
                 .collect(Collectors.toList());
+    }
+
+    private static List<GreatPower> extractGreatPowers(String data) {
+        int start = StringUtils.indexOf(data, "\ngreat_powers={") + 16;
+        int end = StringUtils.indexOf(data, "}\n}", start);
+        String subData = StringUtils.substring(data, start, end).trim();
+
+        List<String> greatPowersString = Arrays.stream(subData.split("}"))
+                .filter(greatPowerString -> !greatPowerString.contains("leaving="))
+                .map(greatPowerString -> greatPowerString.trim().replaceAll("original=\\{", "").trim())
+                .collect(Collectors.toList());
+
+        return greatPowersString.stream().map(greatPowerString -> {
+            GreatPower greatPower = new GreatPower();
+            greatPower.setCountry(readSimpleString(getValueFromKey(greatPowerString, "country")));
+            greatPower.setValue(readSimpleDouble(getValueFromKey(greatPowerString, "value")));
+            return greatPower;
+        }).collect(Collectors.toList());
     }
 
     private static String getValueFromKey(String data, String key) {
