@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class SaveReadUtils {
@@ -40,6 +42,7 @@ public class SaveReadUtils {
         save.setInstitutions(extractInstitutions(data));
         save.setProductionsLeader(extractProductionsLeader(data));
         save.setGreatPowers(extractGreatPowers(data));
+        save.setEmpire(extractEmpire(data));
 
         return save;
     }
@@ -153,7 +156,7 @@ public class SaveReadUtils {
                 .collect(Collectors.toList());
 
         List<List<String>> infos = datas.stream()
-                .map(info -> Arrays.stream(info.split(" ")).map(String::trim).collect(Collectors.toList()))
+                .map(SaveReadUtils::readSameLineListString)
                 .collect(Collectors.toList());
 
         List<Institution> institutions = new ArrayList<>();
@@ -171,11 +174,7 @@ public class SaveReadUtils {
     }
 
     private static List<String> extractProductionsLeader(String data) {
-        String subData = getObjectFromKey(data, "production_leader_tag");
-
-        return Arrays.stream(subData.split(" "))
-                .map(String::trim)
-                .collect(Collectors.toList());
+        return readSameLineListString(getObjectFromKey(data, "production_leader_tag"));
     }
 
     private static List<GreatPower> extractGreatPowers(String data) {
@@ -184,7 +183,7 @@ public class SaveReadUtils {
         String subData = StringUtils.substring(data, start, end).trim();
 
         List<String> greatPowersString = Arrays.stream(subData.split("}"))
-                .filter(greatPowerString -> !greatPowerString.contains("leaving="))
+                .filter(greatPowerString -> ! greatPowerString.contains("leaving="))
                 .map(greatPowerString -> greatPowerString.trim().replaceAll("original=\\{", "").trim())
                 .collect(Collectors.toList());
 
@@ -194,6 +193,37 @@ public class SaveReadUtils {
             greatPower.setValue(readSimpleDouble(getValueFromKey(greatPowerString, "value")));
             return greatPower;
         }).collect(Collectors.toList());
+    }
+
+    private static Empire extractEmpire(String data) {
+        int start = StringUtils.indexOf(data, "\nempire={") + 10;
+        int end = StringUtils.indexOf(data, "}\n}\n", start);
+        String subData = StringUtils.substring(data, start, end).trim();
+
+        List<String> oldEmperorsString = getListMatching(subData, "old_emperor=\\{.*?}");
+        SortedSet<OldEmperor> oldEmperors = oldEmperorsString.stream()
+                .map(oldEmperorString -> {
+                    try {
+                        OldEmperor oldEmperor = new OldEmperor();
+                        oldEmperor.setCountry(readSimpleString(getValueFromKey(oldEmperorString, "country")));
+                        oldEmperor.setDate(readSimpleDate(getValueFromKey(oldEmperorString, "date")));
+                        return oldEmperor;
+                    } catch (ParseException e) {
+                        LOGGER.error("Error while reading date for old empere: {}", oldEmperorsString, e);
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toCollection(TreeSet::new));
+
+        Empire empire = new Empire();
+        empire.setEmperor(readSimpleString(getValueFromKey(subData, "emperor")));
+        empire.setImperialInfluence(readSimpleDouble(getValueFromKey(subData, "imperial_influence")));
+        empire.setReformLevel(readSimpleInteger(getValueFromKey(subData, "reform_level")));
+        empire.setElectors(readSameLineListString(getObjectFromKey(subData, "electors")));
+        empire.setOldEmperors(oldEmperors);
+
+        return empire;
     }
 
     private static String getValueFromKey(String data, String key) {
@@ -208,6 +238,17 @@ public class SaveReadUtils {
         int end = StringUtils.indexOf(data, "}", start);
 
         return StringUtils.substring(data, start, end).trim();
+    }
+
+    private static List<String> getListMatching(String data, String regex) {
+        List<String> matches = new ArrayList<>();
+        Matcher matcher = Pattern.compile(regex, Pattern.DOTALL).matcher(data);
+
+        while (matcher.find()) {
+            matches.add(matcher.group().trim());
+        }
+
+        return matches;
     }
 
     private static String readSimpleString(String data) {
@@ -231,11 +272,17 @@ public class SaveReadUtils {
     }
 
     private static List<String> readListString(String data) {
-        return Arrays.stream(data.trim().split("\n")).filter(StringUtils::isNotBlank).collect(Collectors.toList());
+        return Arrays.stream(data.trim().split("\n"))
+                .filter(StringUtils::isNotBlank)
+                .map(SaveReadUtils::readSimpleString)
+                .collect(Collectors.toList());
     }
 
     private static List<String> readSameLineListString(String data) {
-        return Arrays.stream(data.trim().split(" ")).filter(StringUtils::isNotBlank).collect(Collectors.toList());
+        return Arrays.stream(data.trim().split(" "))
+                .filter(StringUtils::isNotBlank)
+                .map(SaveReadUtils::readSimpleString)
+                .collect(Collectors.toList());
     }
 
     private static List<Integer> readSameLineListInteger(String data) {
