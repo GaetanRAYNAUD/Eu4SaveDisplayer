@@ -37,7 +37,7 @@ public class Eu4Save {
 
     private List<Country> countries;
 
-    private SortedSet<War> activeWars;
+    private SortedSet<War> wars;
 
     public Date getDate () {
         return date;
@@ -143,11 +143,11 @@ public class Eu4Save {
         this.countries = countries;
     }
 
-    public SortedSet<War> getActiveWars () {
-        return activeWars;
+    public SortedSet<War> getWars() {
+        return wars;
     }
 
-    public void setActiveWars (SortedSet<War> activeWars) {
-        this.activeWars = activeWars;
+    public void setWars(SortedSet<War> wars) {
+        this.wars = wars;
     }
 }

@@ -3,6 +3,8 @@ package com.graynaud.eu4savedisplayerbo.utils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.graynaud.eu4savedisplayerbo.model.save.Eu4Save;
 import com.graynaud.eu4savedisplayerbo.model.save.general.*;
+import com.graynaud.eu4savedisplayerbo.model.save.province.Building;
+import com.graynaud.eu4savedisplayerbo.model.save.province.Province;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -24,7 +26,7 @@ public class SaveReadUtils {
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy.M.d");
 
     public static byte[] saveFileToJson(MultipartFile file) throws IOException, ParseException {
-        Eu4Save save = readSaveContent(new String(file.getBytes()));
+        Eu4Save save = readSaveContent(new String(file.getBytes(), "Windows-1252"));
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
 
@@ -44,6 +46,7 @@ public class SaveReadUtils {
         save.setGreatPowers(extractGreatPowers(data));
         save.setEmpire(extractEmpire(data, EmpireType.HRE));
         save.setCelestialEmpire(extractEmpire(data, EmpireType.CELESTIAL));
+        save.setProvinces(extractProvinces(data));
 
         return save;
     }
@@ -129,7 +132,7 @@ public class SaveReadUtils {
 
             String country = countryStateData.indexOf("\n", countryStateData.indexOf("country=") + 8) <= 0 ? countryStateData.substring(
                     countryStateData.indexOf("country=") + 8) : getValueFromKey(countryStateData, "country");
-            countryState.setCountry(country.replaceAll("\"", ""));
+            countryState.setCountry(readSimpleString(country));
 
             countryStates.add(countryState);
         });
@@ -189,7 +192,7 @@ public class SaveReadUtils {
         int end = StringUtils.indexOf(data, "}\n}\n", start);
         String subData = StringUtils.substring(data, start, end).trim();
 
-        if (!subData.contains("emperor=\"")) {
+        if (! subData.contains("emperor=\"")) {
             return null; //No emperor means no empire
         }
 
@@ -222,9 +225,76 @@ public class SaveReadUtils {
         return empire;
     }
 
+    private static List<Province> extractProvinces(String data) {
+        int start = StringUtils.indexOf(data, "\nprovinces={") + 13;
+        int end = StringUtils.indexOf(data, "\n}\n", start);
+        String subData = StringUtils.substring(data, start, end).trim();
+
+        List<String> provincesString = getListMatching(subData, "-\\d+=\\{.*?\n\t}");
+        List<Province> provinces = new ArrayList<>();
+        provincesString.forEach(provinceString -> {
+            Province province = new Province();
+            province.setId(readSimpleInteger(provinceString.substring(1, provinceString.indexOf("="))));
+            province.setName(readSimpleString(getValueFromKey(provinceString, "name")));
+            province.setOwner(readSimpleString(getValueFromKey(provinceString, "owner")));
+            province.setController(readSimpleString(getValueFromKey(provinceString, "controller")));
+            province.setInstitutions(readSameLineListDouble(getObjectFromKey(provinceString, "institutions")));
+            province.setEstate(readSimpleInteger(getValueFromKey(provinceString, "\n\t\testate")));
+            province.setCores(readListString(getObjectFromKey(provinceString, "cores")));
+            province.setCulture(readSimpleString(getValueFromKey(provinceString, "culture")));
+            province.setReligion(readSimpleString(getValueFromKey(provinceString, "religion")));
+            province.setBaseTax(readSimpleDouble(getValueFromKey(provinceString, "base_tax")));
+            province.setBaseProduction(readSimpleDouble(getValueFromKey(provinceString, "base_production")));
+            province.setBaseManpower(readSimpleDouble(getValueFromKey(provinceString, "base_manpower")));
+            province.setTradeGood(readSimpleString(getValueFromKey(provinceString, "\n\t\ttrade_goods")));
+            province.setLocalAutonomy(readSimpleDouble(getValueFromKey(provinceString, "\n\t\tlocal_autonomy")));
+            province.setBuildings(extractBuildings(provinceString));
+            province.setTradePower(readSimpleDouble(getValueFromKey(provinceString, "\n\t\ttrade_power")));
+            province.setCenterOfTrade(readSimpleInteger(getValueFromKey(provinceString, "\n\t\tcenter_of_trade")));
+            province.setHre(readSimpleBoolean(getValueFromKey(provinceString, "\n\t\thre")));
+
+
+            provinces.add(province);
+        });
+
+        return provinces;
+    }
+
+    private static List<Building> extractBuildings(String data) {
+        String subData = getObjectFromKey(data, "building_builders");
+
+        if (subData == null) {
+            return new ArrayList<>();
+        }
+
+        return Arrays.stream(subData.split("\n"))
+                .map(String::trim)
+                .map(buildingData -> {
+                    List<String> datas = Arrays.stream(buildingData.split("="))
+                            .map(String::trim)
+                            .collect(Collectors.toList());
+
+                    if (datas.size() != 2) {
+                        LOGGER.error("Can't parse building data: {}", buildingData);
+                        return null;
+                    }
+
+                    Building building = new Building();
+                    building.setName(datas.get(0));
+                    building.setBuilder(readSimpleString(datas.get(1)));
+                    return building;
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
     private static String getValueFromKey(String data, String key) {
         int start = StringUtils.indexOf(data, key + "=") + key.length() + 1;
         int end = StringUtils.indexOf(data, "\n", start);
+
+        if (start < key.length() + 1 || end < key.length() + 1) {
+            return null;
+        }
 
         return StringUtils.substring(data, start, end).trim();
     }
@@ -232,6 +302,10 @@ public class SaveReadUtils {
     private static String getObjectFromKey(String data, String key) {
         int start = StringUtils.indexOf(data, key + "={") + key.length() + 2;
         int end = StringUtils.indexOf(data, "}", start);
+
+        if (start < key.length() + 2 || end < key.length() + 2) {
+            return null;
+        }
 
         return StringUtils.substring(data, start, end).trim();
     }
@@ -288,6 +362,10 @@ public class SaveReadUtils {
     }
 
     private static List<String> readListString(String data) {
+        if (data == null) {
+            return null;
+        }
+
         return Arrays.stream(data.trim().split("\n"))
                 .filter(StringUtils::isNotBlank)
                 .map(SaveReadUtils::readSimpleString)
@@ -295,6 +373,10 @@ public class SaveReadUtils {
     }
 
     private static List<String> readSameLineListString(String data) {
+        if (data == null) {
+            return null;
+        }
+
         return Arrays.stream(data.trim().split(" "))
                 .filter(StringUtils::isNotBlank)
                 .map(SaveReadUtils::readSimpleString)
@@ -302,6 +384,10 @@ public class SaveReadUtils {
     }
 
     private static List<Integer> readSameLineListInteger(String data) {
+        if (data == null) {
+            return null;
+        }
+
         return Arrays.stream(data.trim().split(" "))
                 .filter(StringUtils::isNotBlank)
                 .map(SaveReadUtils::readSimpleInteger)
@@ -309,13 +395,21 @@ public class SaveReadUtils {
     }
 
     private static List<Boolean> readSameLineListBoolean(String data) {
+        if (data == null) {
+            return null;
+        }
+
         return Arrays.stream(data.trim().split(" "))
                 .filter(StringUtils::isNotBlank)
                 .map(SaveReadUtils::readSimpleBoolean)
                 .collect(Collectors.toList());
     }
 
-    private static List<Double> readSameLineDouble(String data) {
+    private static List<Double> readSameLineListDouble(String data) {
+        if (data == null) {
+            return null;
+        }
+
         return Arrays.stream(data.trim().split(" "))
                 .filter(StringUtils::isNotBlank)
                 .map(SaveReadUtils::readSimpleDouble)
