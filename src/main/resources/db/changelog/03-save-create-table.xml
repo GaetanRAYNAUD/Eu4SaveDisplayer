@@ -1,0 +1,31 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet author="graynaud" id="save-create-table">
+        <createTable tableName="save">
+            <column name="id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="date" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column name="version" type="varchar(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="file" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="creation_date" type="timestamp"/>
+            <column name="author_id" type="int">
+                <constraints nullable="false" foreignKeyName="fk_save_user" references="user(id)"/>
+            </column>
+            <column name="campaign_id" type="int">
+                <constraints nullable="false" foreignKeyName="fk_save_campaign" references="campaign(id)"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

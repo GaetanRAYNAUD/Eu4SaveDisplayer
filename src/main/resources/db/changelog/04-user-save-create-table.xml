@@ -1,0 +1,21 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet author="graynaud" id="user-save-create-table">
+        <createTable tableName="user_save">
+            <column name="user_id" type="int">
+                <constraints nullable="false" foreignKeyName="fk_save_user_user" references="user(id)"/>
+            </column>
+            <column name="save_id" type="int">
+                <constraints nullable="false" foreignKeyName="fk_save_user_save" references="save(id)"/>
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="user_id, save_id"
+                       constraintName="pk_user_save"
+                       tableName="user_save"/>
+    </changeSet>
+
+</databaseChangeLog>

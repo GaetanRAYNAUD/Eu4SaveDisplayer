@@ -1,0 +1,31 @@
+{
+  "name": "eu4savedisplayer",
+  "version": "0.0.1",
+  "description": "A Europa Universalis 4 save displayer",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:GaetanRAYNAUD/Eu4SaveDisplayer.git"
+  },
+  "author": "Gaétan RAYNAUD",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/GaetanRAYNAUD/Eu4SaveDisplayer/issues"
+  },
+  "dependencies": {
+    "react": "^16.5.2",
+    "react-dom": "^16.5.2",
+    "react-openidconnect": "^1.1.0",
+    "rest": "^1.3.1"
+  },
+  "scripts": {
+    "watch": "webpack --watch -d"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.3.4",
+    "@babel/preset-env": "^7.3.4",
+    "@babel/preset-react": "^7.0.0",
+    "babel-loader": "^8.0.5",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.2.3"
+  }
+}
