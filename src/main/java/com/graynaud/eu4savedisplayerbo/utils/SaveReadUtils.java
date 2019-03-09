@@ -16,6 +16,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class SaveReadUtils {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(SaveReadUtils.class);
 
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy.M.d");
@@ -37,6 +38,7 @@ public class SaveReadUtils {
         save.setStartDate(extractStartDate(data));
         save.setMapAreaData(extractMapAreaData(data));
         save.setInstitutions(extractInstitutions(data));
+        save.setProductionsLeader(extractProductionsLeader(data));
 
         return save;
     }
@@ -120,7 +122,7 @@ public class SaveReadUtils {
 
         List<String> countryStatesData = Arrays.stream(data.replaceFirst("country_state=\\{", "").split("}\n\t\t\tcountry_state=\\{"))
                 .filter(StringUtils::isNotBlank)
-                .filter(s -> !s.contains("investments={"))
+                .filter(s -> ! s.contains("investments={"))
                 .map(String::trim)
                 .collect(Collectors.toList());
 
@@ -167,11 +169,26 @@ public class SaveReadUtils {
         return institutions;
     }
 
+    private static List<String> extractProductionsLeader(String data) {
+        String subData = getObjectFromKey(data, "production_leader_tag");
+
+        return Arrays.stream(subData.split(" "))
+                .map(String::trim)
+                .collect(Collectors.toList());
+    }
+
     private static String getValueFromKey(String data, String key) {
         int start = StringUtils.indexOf(data, key + "=") + key.length() + 1;
         int end = StringUtils.indexOf(data, "\n", start);
 
-        return StringUtils.substring(data, start, end);
+        return StringUtils.substring(data, start, end).trim();
+    }
+
+    private static String getObjectFromKey(String data, String key) {
+        int start = StringUtils.indexOf(data, key + "={") + key.length() + 2;
+        int end = StringUtils.indexOf(data, "}", start);
+
+        return StringUtils.substring(data, start, end).trim();
     }
 
     private static String readSimpleString(String data) {
