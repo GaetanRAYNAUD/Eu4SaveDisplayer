@@ -15,6 +15,8 @@ public class Empire {
 
     private List<String> electors;
 
+    private EmpireType type;
+
     public String getEmperor() {
         return emperor;
     }
@@ -55,6 +57,14 @@ public class Empire {
         this.electors = electors;
     }
 
+    public EmpireType getType() {
+        return type;
+    }
+
+    public void setType(EmpireType type) {
+        this.type = type;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) { return true; }
@@ -64,12 +74,13 @@ public class Empire {
                Objects.equals(imperialInfluence, empire.imperialInfluence) &&
                Objects.equals(reformLevel, empire.reformLevel) &&
                Objects.equals(oldEmperors, empire.oldEmperors) &&
-               Objects.equals(electors, empire.electors);
+               Objects.equals(electors, empire.electors) &&
+               type == empire.type;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(emperor, imperialInfluence, reformLevel, oldEmperors, electors);
+        return Objects.hash(emperor, imperialInfluence, reformLevel, oldEmperors, electors, type);
     }
 
     @Override
@@ -80,6 +91,7 @@ public class Empire {
                ", reformLevel=" + reformLevel +
                ", oldEmperors=" + oldEmperors +
                ", electors=" + electors +
+               ", type=" + type +
                '}';
     }
 }

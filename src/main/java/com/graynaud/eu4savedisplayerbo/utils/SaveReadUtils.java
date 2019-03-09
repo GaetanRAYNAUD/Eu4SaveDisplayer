@@ -42,7 +42,8 @@ public class SaveReadUtils {
         save.setInstitutions(extractInstitutions(data));
         save.setProductionsLeader(extractProductionsLeader(data));
         save.setGreatPowers(extractGreatPowers(data));
-        save.setEmpire(extractEmpire(data));
+        save.setEmpire(extractEmpire(data, EmpireType.HRE));
+        save.setCelestialEmpire(extractEmpire(data, EmpireType.CELESTIAL));
 
         return save;
     }
@@ -119,16 +120,7 @@ public class SaveReadUtils {
     }
 
     private static List<CountryState> extractCountryStates(String data) {
-        data = data.substring(data.indexOf("\n") + 1);
-        data = data.substring(data.indexOf("\n") + 1);
-        data = StringUtils.chomp(data);
-        data = data.substring(0, data.lastIndexOf("\n")).trim(); //Remove first line and last line because don't need it
-
-        List<String> countryStatesData = Arrays.stream(data.replaceFirst("country_state=\\{", "").split("}\n\t\t\tcountry_state=\\{"))
-                .filter(StringUtils::isNotBlank)
-                .filter(s -> ! s.contains("investments={"))
-                .map(String::trim)
-                .collect(Collectors.toList());
+        List<String> countryStatesData = getListMatching(data, "country_state=\\{.*?}");
 
         List<CountryState> countryStates = new ArrayList<>();
         countryStatesData.forEach(countryStateData -> {
@@ -179,13 +171,10 @@ public class SaveReadUtils {
 
     private static List<GreatPower> extractGreatPowers(String data) {
         int start = StringUtils.indexOf(data, "\ngreat_powers={") + 16;
-        int end = StringUtils.indexOf(data, "}\n}", start);
+        int end = StringUtils.indexOf(data, "\n}\n", start);
         String subData = StringUtils.substring(data, start, end).trim();
 
-        List<String> greatPowersString = Arrays.stream(subData.split("}"))
-                .filter(greatPowerString -> ! greatPowerString.contains("leaving="))
-                .map(greatPowerString -> greatPowerString.trim().replaceAll("original=\\{", "").trim())
-                .collect(Collectors.toList());
+        List<String> greatPowersString = getListMatching(subData, "original=\\{.*?}");
 
         return greatPowersString.stream().map(greatPowerString -> {
             GreatPower greatPower = new GreatPower();
@@ -195,10 +184,14 @@ public class SaveReadUtils {
         }).collect(Collectors.toList());
     }
 
-    private static Empire extractEmpire(String data) {
-        int start = StringUtils.indexOf(data, "\nempire={") + 10;
+    private static Empire extractEmpire(String data, EmpireType empireType) {
+        int start = StringUtils.indexOf(data, empireType.getKey()) + empireType.getKey().length() + 1;
         int end = StringUtils.indexOf(data, "}\n}\n", start);
         String subData = StringUtils.substring(data, start, end).trim();
+
+        if (!subData.contains("emperor=\"")) {
+            return null; //No emperor means no empire
+        }
 
         List<String> oldEmperorsString = getListMatching(subData, "old_emperor=\\{.*?}");
         SortedSet<OldEmperor> oldEmperors = oldEmperorsString.stream()
@@ -220,8 +213,11 @@ public class SaveReadUtils {
         empire.setEmperor(readSimpleString(getValueFromKey(subData, "emperor")));
         empire.setImperialInfluence(readSimpleDouble(getValueFromKey(subData, "imperial_influence")));
         empire.setReformLevel(readSimpleInteger(getValueFromKey(subData, "reform_level")));
-        empire.setElectors(readSameLineListString(getObjectFromKey(subData, "electors")));
         empire.setOldEmperors(oldEmperors);
+
+        if (empireType.isHasElectors()) {
+            empire.setElectors(readSameLineListString(getObjectFromKey(subData, "electors")));
+        }
 
         return empire;
     }
@@ -252,22 +248,42 @@ public class SaveReadUtils {
     }
 
     private static String readSimpleString(String data) {
+        if (StringUtils.isBlank(data)) {
+            return null;
+        }
+
         return RegExUtils.replaceAll(data.trim(), "\"", "").trim();
     }
 
     private static Date readSimpleDate(String data) throws ParseException {
+        if (StringUtils.isBlank(data)) {
+            return null;
+        }
+
         return DATE_FORMAT.parse(data.trim());
     }
 
     private static Boolean readSimpleBoolean(String data) {
+        if (StringUtils.isBlank(data)) {
+            return null;
+        }
+
         return "1".equalsIgnoreCase(data.trim()) || "yes".equalsIgnoreCase(data);
     }
 
     private static Integer readSimpleInteger(String data) {
+        if (StringUtils.isBlank(data)) {
+            return null;
+        }
+
         return new Integer(data.trim());
     }
 
     private static Double readSimpleDouble(String data) {
+        if (StringUtils.isBlank(data)) {
+            return null;
+        }
+
         return new Double(data.trim());
     }
 
