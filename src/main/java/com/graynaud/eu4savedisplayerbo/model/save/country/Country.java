@@ -82,6 +82,8 @@ public class Country {
 
     private Double armyProfessionalism;
 
+    private List<String> governmentReforms;
+
     private Double maxManpower;
 
     private Double maxSailors;
@@ -405,6 +407,14 @@ public class Country {
         }
     }
 
+    public List<String> getGovernmentReforms () {
+        return governmentReforms;
+    }
+
+    public void setGovernmentReforms (List<String> governmentReforms) {
+        this.governmentReforms = governmentReforms;
+    }
+
     public Double getMaxManpower() {
         return maxManpower;
     }
@@ -446,50 +456,51 @@ public class Country {
     }
 
     @Override
-    public String toString() {
+    public String toString () {
         return "Country{" +
-               "tag='" + tag + '\'' +
-               ", player='" + player + '\'' +
-               ", governmentRank=" + governmentRank +
-               ", governmentName='" + governmentName + '\'' +
-               ", continents=" + continents +
-               ", institutions=" + institutions +
-               ", goldenEraDate=" + goldenEraDate +
-               ", capital=" + capital +
-               ", tradePort=" + tradePort +
-               ", development=" + development +
-               ", color=" + color +
-               ", primaryCulture='" + primaryCulture + '\'' +
-               ", acceptedCultures=" + acceptedCultures +
-               ", religion='" + religion + '\'' +
-               ", technologyGroup='" + technologyGroup + '\'' +
-               ", unitType='" + unitType + '\'' +
-               ", technologies=" + technologies +
-               ", rivals=" + rivals +
-               ", enemies=" + enemies +
-               ", activePolicies=" + activePolicies +
-               ", powerProjection=" + powerProjection +
-               ", greatPowerScore=" + greatPowerScore +
-               ", allies=" + allies +
-               ", prestige=" + prestige +
-               ", stability=" + stability +
-               ", treasury=" + treasury +
-               ", income=" + income +
-               ", inflation=" + inflation +
-               ", armyTradition=" + armyTradition +
-               ", navyTradition=" + navyTradition +
-               ", debt=" + debt +
-               ", corruption=" + corruption +
-               ", legitimacy=" + legitimacy +
-               ", mercantilism=" + mercantilism +
-               ", splendor=" + splendor +
-               ", ideas=" + ideas +
-               ", armyProfessionalism=" + armyProfessionalism +
-               ", maxManpower=" + maxManpower +
-               ", maxSailors=" + maxSailors +
-               ", losses=" + losses +
-               ", innovativeness=" + innovativeness +
-               ", governmentReformProgress=" + governmentReformProgress +
-               '}';
+                "tag='" + tag + '\'' +
+                ", player='" + player + '\'' +
+                ", governmentRank=" + governmentRank +
+                ", governmentName='" + governmentName + '\'' +
+                ", continents=" + continents +
+                ", institutions=" + institutions +
+                ", goldenEraDate=" + goldenEraDate +
+                ", capital=" + capital +
+                ", tradePort=" + tradePort +
+                ", development=" + development +
+                ", color=" + color +
+                ", primaryCulture='" + primaryCulture + '\'' +
+                ", acceptedCultures=" + acceptedCultures +
+                ", religion='" + religion + '\'' +
+                ", technologyGroup='" + technologyGroup + '\'' +
+                ", unitType='" + unitType + '\'' +
+                ", technologies=" + technologies +
+                ", rivals=" + rivals +
+                ", enemies=" + enemies +
+                ", activePolicies=" + activePolicies +
+                ", powerProjection=" + powerProjection +
+                ", greatPowerScore=" + greatPowerScore +
+                ", allies=" + allies +
+                ", prestige=" + prestige +
+                ", stability=" + stability +
+                ", treasury=" + treasury +
+                ", income=" + income +
+                ", inflation=" + inflation +
+                ", armyTradition=" + armyTradition +
+                ", navyTradition=" + navyTradition +
+                ", debt=" + debt +
+                ", corruption=" + corruption +
+                ", legitimacy=" + legitimacy +
+                ", mercantilism=" + mercantilism +
+                ", splendor=" + splendor +
+                ", ideas=" + ideas +
+                ", armyProfessionalism=" + armyProfessionalism +
+                ", governmentReforms=" + governmentReforms +
+                ", maxManpower=" + maxManpower +
+                ", maxSailors=" + maxSailors +
+                ", losses=" + losses +
+                ", innovativeness=" + innovativeness +
+                ", governmentReformProgress=" + governmentReformProgress +
+                '}';
     }
 }

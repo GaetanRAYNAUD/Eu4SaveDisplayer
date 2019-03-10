@@ -353,6 +353,7 @@ public class SaveReadUtils {
             country.setSplendor(readSimpleDouble(getValueFromKey(countryString, "\n\t\tsplendor")));
             country.setIdeas(extractIdeas(countryString));
             country.setArmyProfessionalism(readSimpleDouble(getValueFromKey(countryString, "\n\t\tarmy_professionalism")));
+            country.setGovernmentReforms(extractGovernmentReforms(countryString));
             country.setMaxManpower(readSimpleDouble(getValueFromKey(countryString, "\n\t\tmax_manpower")));
             country.setMaxSailors(readSimpleDouble(getValueFromKey(countryString, "\n\t\tmax_sailors")));
             country.setLosses(readSameLineListInteger(getObjectFromKey(countryString, "\n\t\t\tmembers")));
@@ -435,6 +436,23 @@ public class SaveReadUtils {
                 });
 
         return ideas;
+    }
+
+    private static List<String> extractGovernmentReforms(String data) {
+        int start = StringUtils.indexOf(data, "government={") + 13;
+        int end = StringUtils.indexOf(data, "\n\t\t}", start);
+        String subData = StringUtils.substring(data, start, end).trim();
+
+        String reformsString = getObjectFromKey(subData, "reforms");
+
+        if (reformsString == null) {
+            return null;
+        }
+
+        return readListString(reformsString).stream()
+                               .map(SaveReadUtils::readSimpleString)
+                               .filter(StringUtils::isNotBlank)
+                               .collect(Collectors.toList());
     }
 
     private static List<String> getListOfValuesInObject(String data, String key, String field) {
