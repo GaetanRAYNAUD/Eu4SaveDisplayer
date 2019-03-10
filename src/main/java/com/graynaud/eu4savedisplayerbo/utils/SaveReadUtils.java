@@ -346,7 +346,7 @@ public class SaveReadUtils {
             country.setInflation(readSimpleDouble(getValueFromKey(countryString, "\n\t\tinflation")));
             country.setArmyTradition(readSimpleDouble(getValueFromKey(countryString, "\n\t\tarmy_tradition")));
             country.setNavyTradition(readSimpleDouble(getValueFromKey(countryString, "\n\t\tnavy_tradition")));
-            country.setDebt(0); //TODO
+            country.setDebt(extractDebt(countryString));
             country.setCorruption(readSimpleDouble(getValueFromKey(countryString, "\n\t\tcorruption")));
             country.setLegitimacy(readSimpleDouble(getValueFromKey(countryString, "\n\t\tlegitimacy")));
             country.setMercantilism(readSimpleDouble(getValueFromKey(countryString, "\n\t\tmercantilism")));
@@ -391,6 +391,24 @@ public class SaveReadUtils {
         return getListOfValues(subData, "Can't parse technology data: {}")
                 .map(SaveReadUtils::readSimpleInteger)
                 .collect(Collectors.toList());
+    }
+
+    private static Integer extractDebt (String data) {
+        List<String> loans = getListMatching(data, "\n\t\tloan=\\{.*?\n\t\t}");
+
+        if (loans == null || loans.isEmpty()) {
+            return 0;
+        }
+
+        List<String> amounts = loans.stream()
+                                      .map(match -> readSimpleString(getValueFromKey(match, "\tamount")))
+                                      .collect(Collectors.toList());
+
+        return amounts.stream()
+                      .map(SaveReadUtils::readSimpleInteger)
+                      .filter(Objects::nonNull)
+                      .mapToInt(Integer::intValue)
+                      .sum();
     }
 
     private static Map<String, Integer> extractIdeas(String data) {
