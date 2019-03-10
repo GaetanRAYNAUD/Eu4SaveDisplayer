@@ -2,6 +2,7 @@ package com.graynaud.eu4savedisplayerbo.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.graynaud.eu4savedisplayerbo.model.save.Eu4Save;
+import com.graynaud.eu4savedisplayerbo.model.save.country.Country;
 import com.graynaud.eu4savedisplayerbo.model.save.general.*;
 import com.graynaud.eu4savedisplayerbo.model.save.province.Building;
 import com.graynaud.eu4savedisplayerbo.model.save.province.Province;
@@ -18,6 +19,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class SaveReadUtils {
 
@@ -47,6 +49,7 @@ public class SaveReadUtils {
         save.setEmpire(extractEmpire(data, EmpireType.HRE));
         save.setCelestialEmpire(extractEmpire(data, EmpireType.CELESTIAL));
         save.setProvinces(extractProvinces(data));
+        save.setCountries(extractCountries(data));
 
         return save;
     }
@@ -288,6 +291,187 @@ public class SaveReadUtils {
                 .collect(Collectors.toList());
     }
 
+    private static List<Country> extractCountries(String data) {
+        int start = StringUtils.indexOf(data, "\ncountries={") + 13;
+        int end = StringUtils.indexOf(data, "\n}\nactive_advisors", start);
+        String subData = StringUtils.substring(data, start, end).trim();
+
+        int startPlayers = StringUtils.indexOf(data, "\nplayers_countries={") + 21;
+        int endPlayers = StringUtils.indexOf(data, "\n}\n", startPlayers);
+        String subDataPlayers = StringUtils.substring(data, startPlayers, endPlayers).trim();
+
+        List<String> playersData = Arrays.stream(subDataPlayers.split("\n"))
+                .map(SaveReadUtils::readSimpleString)
+                .filter(StringUtils::isNotBlank)
+                .collect(Collectors.toList());
+
+        List<String> countriesString = getListMatching(subData, "\n\t[A-Z]{3}=\\{.*?\n\t}");
+        countriesString.subList(0, 3).clear(); //Remove 3 first countries: rebels, pirates, natives
+
+        List<Country> countries = new ArrayList<>();
+        countriesString.forEach(countryString -> {
+            Double dev = readSimpleDouble(getValueFromKey(countryString, "\n\t\traw_development"));
+
+            if (dev == null) { // no dev means country does not exist
+                return;
+            }
+
+            Country country = new Country();
+            country.setTag(readSimpleString(countryString.substring(0, 3)));
+            country.setPlayer(extractPlayer(playersData, country.getTag()));
+            country.setGovernmentRank(readSimpleInteger(getValueFromKey(countryString, "\n\t\tgovernment_rank")));
+            country.setGovernmentName(readSimpleString(getValueFromKey(countryString, "\n\t\tgovernment_name")));
+            country.setContinents(readSameLineListBoolean(getObjectFromKey(countryString, "\n\t\tcontinent")));
+            country.setInstitutions(readSameLineListBoolean(getObjectFromKey(countryString, "\n\t\tinstitutions")));
+            country.setCapital(readSimpleInteger(getValueFromKey(countryString, "\n\t\tcapital")));
+            country.setTradePort(readSimpleInteger(getValueFromKey(countryString, "\n\t\ttrade_port")));
+            country.setDevelopment(dev);
+            country.setColor(readSameLineListInteger(getObjectFromKey(countryString, "map_color")));
+            country.setPrimaryCulture(readSimpleString(getValueFromKey(countryString, "\n\t\tprimary_culture")));
+            country.setAcceptedCultures(getListValuesFromKey(countryString, "\n\t\taccepted_culture", "Can't parse accepted culture: {}"));
+            country.setReligion(readSimpleString(getValueFromKey(countryString, "\n\t\treligion")));
+            country.setTechnologyGroup(readSimpleString(getValueFromKey(countryString, "\n\t\ttechnology_group")));
+            country.setUnitType(readSimpleString(getValueFromKey(countryString, "\n\t\tunit_type")));
+            country.setTechnologies(extractTechnologies(countryString));
+            country.setRivals(getListOfValuesInObject(countryString, "\n\t\trival", "country"));
+            country.setEnemies(getListValuesFromKey(countryString, "\n\t\tenemy", "Can't parse enemy: {}"));
+            country.setActivePolicies(getListOfValuesInObject(countryString, "\n\t\tactive_policy", "\tpolicy"));
+            country.setPowerProjection(readSimpleDouble(getValueFromKey(countryString, "\n\t\tcurrent_power_projection")));
+            country.setGreatPowerScore(readSimpleDouble(getValueFromKey(countryString, "\n\t\tgreat_power_score")));
+            country.setAllies(readListString(getObjectFromKey(countryString, "allies")));
+            country.setPrestige(readSimpleDouble(getValueFromKey(countryString, "\n\t\tprestige")));
+            country.setStability(readSimpleDouble(getValueFromKey(countryString, "\n\t\tstability")));
+            country.setTreasury(readSimpleDouble(getValueFromKey(countryString, "\n\t\ttreasury")));
+            country.setIncome(readSimpleDouble(getValueFromKey(countryString, "\n\t\testimated_monthly_income")));
+            country.setInflation(readSimpleDouble(getValueFromKey(countryString, "\n\t\tinflation")));
+            country.setArmyTradition(readSimpleDouble(getValueFromKey(countryString, "\n\t\tarmy_tradition")));
+            country.setNavyTradition(readSimpleDouble(getValueFromKey(countryString, "\n\t\tnavy_tradition")));
+            country.setDebt(0); //TODO
+            country.setCorruption(readSimpleDouble(getValueFromKey(countryString, "\n\t\tcorruption")));
+            country.setLegitimacy(readSimpleDouble(getValueFromKey(countryString, "\n\t\tlegitimacy")));
+            country.setMercantilism(readSimpleDouble(getValueFromKey(countryString, "\n\t\tmercantilism")));
+            country.setSplendor(readSimpleDouble(getValueFromKey(countryString, "\n\t\tsplendor")));
+            country.setIdeas(extractIdeas(countryString));
+            country.setArmyProfessionalism(readSimpleDouble(getValueFromKey(countryString, "\n\t\tarmy_professionalism")));
+            country.setMaxManpower(readSimpleDouble(getValueFromKey(countryString, "\n\t\tmax_manpower")));
+            country.setMaxSailors(readSimpleDouble(getValueFromKey(countryString, "\n\t\tmax_sailors")));
+            country.setLosses(readSameLineListInteger(getObjectFromKey(countryString, "\n\t\t\tmembers")));
+            country.setInnovativeness(readSimpleDouble(getValueFromKey(countryString, "\n\t\tinnovativeness")));
+            country.setGovernmentReformProgress(readSimpleDouble(getValueFromKey(countryString, "\n\t\tgovernment_reform_progress")));
+
+            try {
+                country.setGoldenEraDate(readSimpleDate(getValueFromKey(countryString, "\n\t\tgolden_era_date")));
+            } catch (ParseException e) {
+                LOGGER.error("Can't parse goldenEra date for: {}", country.getTag());
+            }
+
+            countries.add(country);
+        });
+
+        return countries;
+    }
+
+    private static String extractPlayer(List<String> playersData, String tag) {
+        int index = playersData.lastIndexOf(tag);
+
+        if (index < 0) {
+            return null;
+        }
+
+        return playersData.get(index - 1);
+    }
+
+    private static List<Integer> extractTechnologies(String data) {
+        String subData = getObjectFromKey(data, "technology");
+
+        if (StringUtils.isBlank(subData)) {
+            return new ArrayList<>();
+        }
+
+        return getListOfValues(subData, "Can't parse technology data: {}")
+                .map(SaveReadUtils::readSimpleInteger)
+                .collect(Collectors.toList());
+    }
+
+    private static Map<String, Integer> extractIdeas(String data) {
+        String subData = getObjectFromKey(data, "active_idea_groups");
+
+        if (subData == null) {
+            return null;
+        }
+
+        Map<String, Integer> ideas = new LinkedHashMap<>();
+        Arrays.stream(subData.split("\n"))
+                .map(String::trim)
+                .forEach(ideaData -> {
+                    List<String> datas = Arrays.stream(ideaData.split("="))
+                            .map(String::trim)
+                            .collect(Collectors.toList());
+
+                    if (datas.size() != 2) {
+                        LOGGER.error("Can't parse ideas data: {}", ideaData);
+                        return;
+                    }
+
+                    ideas.put(datas.get(0), readSimpleInteger(datas.get(1)));
+                });
+
+        return ideas;
+    }
+
+    private static List<String> getListOfValuesInObject(String data, String key, String field) {
+        List<String> matches = getListMatching(data, key + "=\\{.*?}");
+
+        if (matches == null || matches.isEmpty()) {
+            return null;
+        }
+
+        return matches.stream()
+                .map(match -> readSimpleString(getValueFromKey(match, field)))
+                .collect(Collectors.toList());
+    }
+
+    private static Stream<String> getListOfValues(String data, String message) {
+        return Arrays.stream(data.split("\n"))
+                .map(String::trim)
+                .map(subData -> {
+                    List<String> datas = Arrays.stream(subData.split("="))
+                            .map(String::trim)
+                            .collect(Collectors.toList());
+
+                    if (datas.size() != 2) {
+                        LOGGER.error(message, subData);
+                        return null;
+                    }
+
+                    return readSimpleString(datas.get(1));
+                })
+                .filter(StringUtils::isNotBlank);
+    }
+
+    private static List<String> getListValuesFromKey(String data, String key, String message) {
+        List<String> subData = getListMatchingSingleLine(data, key + "=.*");
+
+        if (subData == null || subData.isEmpty()) {
+            return null;
+        }
+
+        return subData.stream()
+                .map(infos -> {
+                    List<String> datas = Arrays.stream(infos.split("="))
+                            .map(String::trim)
+                            .collect(Collectors.toList());
+
+                    if (datas.size() != 2) {
+                        LOGGER.error(message, subData);
+                        return null;
+                    }
+
+                    return readSimpleString(datas.get(1));
+                })
+                .collect(Collectors.toList());
+    }
+
     private static String getValueFromKey(String data, String key) {
         int start = StringUtils.indexOf(data, key + "=") + key.length() + 1;
         int end = StringUtils.indexOf(data, "\n", start);
@@ -313,6 +497,17 @@ public class SaveReadUtils {
     private static List<String> getListMatching(String data, String regex) {
         List<String> matches = new ArrayList<>();
         Matcher matcher = Pattern.compile(regex, Pattern.DOTALL).matcher(data);
+
+        while (matcher.find()) {
+            matches.add(matcher.group().trim());
+        }
+
+        return matches;
+    }
+
+    private static List<String> getListMatchingSingleLine(String data, String regex) {
+        List<String> matches = new ArrayList<>();
+        Matcher matcher = Pattern.compile(regex).matcher(data);
 
         while (matcher.find()) {
             matches.add(matcher.group().trim());
