@@ -27,15 +27,15 @@ public class SaveReadUtils {
 
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy.M.d");
 
-    public static byte[] saveFileToJson(MultipartFile file) throws IOException, ParseException {
-        Eu4Save save = readSaveContent(new String(file.getBytes(), "Windows-1252"));
+    public static byte[] saveToJsonByteArray (Eu4Save save) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
 
         return objectMapper.writeValueAsBytes(save);
     }
 
-    private static Eu4Save readSaveContent(String data) throws ParseException {
+    public static Eu4Save readSaveContent (MultipartFile file) throws ParseException, IOException {
+        String data = new String(file.getBytes(), "Windows-1252");
         Eu4Save save = new Eu4Save();
         save.setDate(extractSaveDate(data));
         save.setSaveGameVersion(extractGameVersion(data));

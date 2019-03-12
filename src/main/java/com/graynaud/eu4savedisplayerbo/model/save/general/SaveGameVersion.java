@@ -66,6 +66,6 @@ public class SaveGameVersion {
 
     @Override
     public String toString () {
-        return "SaveGameVersion: " + first + "." + second + "." + third + "." + forth;
+        return first + "." + second + "." + third + "." + forth;
     }
 }
