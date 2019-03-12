@@ -1,10 +1,15 @@
 package com.graynaud.eu4savedisplayerbo.model.save.country;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 public class Country {
+
+    private String tag;
+
     private String player;
 
     private Integer governmentRank;
@@ -36,8 +41,6 @@ public class Country {
     private String unitType;
 
     private List<Integer> technologies;
-
-    private List<Estate> estates;
 
     private List<String> rivals;
 
@@ -79,6 +82,8 @@ public class Country {
 
     private Double armyProfessionalism;
 
+    private List<String> governmentReforms;
+
     private Double maxManpower;
 
     private Double maxSailors;
@@ -89,346 +94,372 @@ public class Country {
 
     private Double governmentReformProgress;
 
-    public String getPlayer () {
+
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        if (StringUtils.isBlank(tag)) {
+            throw new NullPointerException();
+        }
+
+        this.tag = tag;
+    }
+
+    public String getPlayer() {
         return player;
     }
 
-    public void setPlayer (String player) {
+    public void setPlayer(String player) {
         this.player = player;
     }
 
-    public Integer getGovernmentRank () {
+    public Integer getGovernmentRank() {
         return governmentRank;
     }
 
-    public void setGovernmentRank (Integer governmentRank) {
+    public void setGovernmentRank(Integer governmentRank) {
         this.governmentRank = governmentRank;
     }
 
-    public String getGovernmentName () {
+    public String getGovernmentName() {
         return governmentName;
     }
 
-    public void setGovernmentName (String governmentName) {
+    public void setGovernmentName(String governmentName) {
         this.governmentName = governmentName;
     }
 
-    public List<Boolean> getContinents () {
+    public List<Boolean> getContinents() {
         return continents;
     }
 
-    public void setContinents (List<Boolean> continents) {
+    public void setContinents(List<Boolean> continents) {
         this.continents = continents;
     }
 
-    public List<Boolean> getInstitutions () {
+    public List<Boolean> getInstitutions() {
         return institutions;
     }
 
-    public void setInstitutions (List<Boolean> institutions) {
+    public void setInstitutions(List<Boolean> institutions) {
         this.institutions = institutions;
     }
 
-    public Date getGoldenEraDate () {
+    public Date getGoldenEraDate() {
         return goldenEraDate;
     }
 
-    public void setGoldenEraDate (Date goldenEraDate) {
+    public void setGoldenEraDate(Date goldenEraDate) {
         this.goldenEraDate = goldenEraDate;
     }
 
-    public Integer getCapital () {
+    public Integer getCapital() {
         return capital;
     }
 
-    public void setCapital (Integer capital) {
+    public void setCapital(Integer capital) {
         this.capital = capital;
     }
 
-    public Integer getTradePort () {
+    public Integer getTradePort() {
         return tradePort;
     }
 
-    public void setTradePort (Integer tradePort) {
+    public void setTradePort(Integer tradePort) {
         this.tradePort = tradePort;
     }
 
-    public Double getDevelopment () {
+    public Double getDevelopment() {
         return development;
     }
 
-    public void setDevelopment (Double development) {
+    public void setDevelopment(Double development) {
         this.development = development;
     }
 
-    public List<Integer> getColor () {
+    public List<Integer> getColor() {
         return color;
     }
 
-    public void setColor (List<Integer> color) {
+    public void setColor(List<Integer> color) {
         this.color = color;
     }
 
-    public String getPrimaryCulture () {
+    public String getPrimaryCulture() {
         return primaryCulture;
     }
 
-    public void setPrimaryCulture (String primaryCulture) {
+    public void setPrimaryCulture(String primaryCulture) {
         this.primaryCulture = primaryCulture;
     }
 
-    public List<String> getAcceptedCultures () {
+    public List<String> getAcceptedCultures() {
         return acceptedCultures;
     }
 
-    public void setAcceptedCultures (List<String> acceptedCultures) {
+    public void setAcceptedCultures(List<String> acceptedCultures) {
         this.acceptedCultures = acceptedCultures;
     }
 
-    public String getReligion () {
+    public String getReligion() {
         return religion;
     }
 
-    public void setReligion (String religion) {
+    public void setReligion(String religion) {
         this.religion = religion;
     }
 
-    public String getTechnologyGroup () {
+    public String getTechnologyGroup() {
         return technologyGroup;
     }
 
-    public void setTechnologyGroup (String technologyGroup) {
+    public void setTechnologyGroup(String technologyGroup) {
         this.technologyGroup = technologyGroup;
     }
 
-    public String getUnitType () {
+    public String getUnitType() {
         return unitType;
     }
 
-    public void setUnitType (String unitType) {
+    public void setUnitType(String unitType) {
         this.unitType = unitType;
     }
 
-    public List<Integer> getTechnologies () {
+    public List<Integer> getTechnologies() {
         return technologies;
     }
 
-    public void setTechnologies (List<Integer> technologies) {
+    public void setTechnologies(List<Integer> technologies) {
         this.technologies = technologies;
     }
 
-    public List<Estate> getEstates () {
-        return estates;
-    }
-
-    public void setEstates (List<Estate> estates) {
-        this.estates = estates;
-    }
-
-    public List<String> getRivals () {
+    public List<String> getRivals() {
         return rivals;
     }
 
-    public void setRivals (List<String> rivals) {
+    public void setRivals(List<String> rivals) {
         this.rivals = rivals;
     }
 
-    public List<String> getEnemies () {
+    public List<String> getEnemies() {
         return enemies;
     }
 
-    public void setEnemies (List<String> enemies) {
+    public void setEnemies(List<String> enemies) {
         this.enemies = enemies;
     }
 
-    public List<String> getActivePolicies () {
+    public List<String> getActivePolicies() {
         return activePolicies;
     }
 
-    public void setActivePolicies (List<String> activePolicies) {
+    public void setActivePolicies(List<String> activePolicies) {
         this.activePolicies = activePolicies;
     }
 
-    public Double getPowerProjection () {
+    public Double getPowerProjection() {
         return powerProjection;
     }
 
-    public void setPowerProjection (Double powerProjection) {
+    public void setPowerProjection(Double powerProjection) {
         this.powerProjection = powerProjection;
     }
 
-    public Double getGreatPowerScore () {
+    public Double getGreatPowerScore() {
         return greatPowerScore;
     }
 
-    public void setGreatPowerScore (Double greatPowerScore) {
+    public void setGreatPowerScore(Double greatPowerScore) {
         this.greatPowerScore = greatPowerScore;
     }
 
-    public List<String> getAllies () {
+    public List<String> getAllies() {
         return allies;
     }
 
-    public void setAllies (List<String> allies) {
+    public void setAllies(List<String> allies) {
         this.allies = allies;
     }
 
-    public Double getPrestige () {
+    public Double getPrestige() {
         return prestige;
     }
 
-    public void setPrestige (Double prestige) {
+    public void setPrestige(Double prestige) {
         this.prestige = prestige;
     }
 
-    public Double getStability () {
+    public Double getStability() {
         return stability;
     }
 
-    public void setStability (Double stability) {
+    public void setStability(Double stability) {
         this.stability = stability;
     }
 
-    public Double getTreasury () {
+    public Double getTreasury() {
         return treasury;
     }
 
-    public void setTreasury (Double treasury) {
+    public void setTreasury(Double treasury) {
         this.treasury = treasury;
     }
 
-    public Double getIncome () {
+    public Double getIncome() {
         return income;
     }
 
-    public void setIncome (Double income) {
+    public void setIncome(Double income) {
         this.income = income;
     }
 
-    public Double getInflation () {
+    public Double getInflation() {
         return inflation;
     }
 
-    public void setInflation (Double inflation) {
-        this.inflation = inflation;
+    public void setInflation(Double inflation) {
+        if (inflation == null) {
+            this.inflation = 0d;
+        } else {
+            this.inflation = inflation;
+        }
     }
 
-    public Double getArmyTradition () {
+    public Double getArmyTradition() {
         return armyTradition;
     }
 
-    public void setArmyTradition (Double armyTradition) {
+    public void setArmyTradition(Double armyTradition) {
         this.armyTradition = armyTradition;
     }
 
-    public Double getNavyTradition () {
+    public Double getNavyTradition() {
         return navyTradition;
     }
 
-    public void setNavyTradition (Double navyTradition) {
+    public void setNavyTradition(Double navyTradition) {
         this.navyTradition = navyTradition;
     }
 
-    public Integer getDebt () {
+    public Integer getDebt() {
         return debt;
     }
 
-    public void setDebt (Integer debt) {
+    public void setDebt(Integer debt) {
         this.debt = debt;
     }
 
-    public Double getCorruption () {
+    public Double getCorruption() {
         return corruption;
     }
 
-    public void setCorruption (Double corruption) {
-        this.corruption = corruption;
+    public void setCorruption(Double corruption) {
+        if (corruption == null) {
+            this.corruption = 0d;
+        } else {
+            this.corruption = corruption;
+        }
     }
 
-    public Double getLegitimacy () {
+    public Double getLegitimacy() {
         return legitimacy;
     }
 
-    public void setLegitimacy (Double legitimacy) {
+    public void setLegitimacy(Double legitimacy) {
         this.legitimacy = legitimacy;
     }
 
-    public Double getMercantilism () {
+    public Double getMercantilism() {
         return mercantilism;
     }
 
-    public void setMercantilism (Double mercantilism) {
+    public void setMercantilism(Double mercantilism) {
         this.mercantilism = mercantilism;
     }
 
-    public Double getSplendor () {
+    public Double getSplendor() {
         return splendor;
     }
 
-    public void setSplendor (Double splendor) {
+    public void setSplendor(Double splendor) {
         this.splendor = splendor;
     }
 
-    public Map<String, Integer> getIdeas () {
+    public Map<String, Integer> getIdeas() {
         return ideas;
     }
 
-    public void setIdeas (Map<String, Integer> ideas) {
+    public void setIdeas(Map<String, Integer> ideas) {
         this.ideas = ideas;
     }
 
-    public Double getArmyProfessionalism () {
+    public Double getArmyProfessionalism() {
         return armyProfessionalism;
     }
 
-    public void setArmyProfessionalism (Double armyProfessionalism) {
-        this.armyProfessionalism = armyProfessionalism;
+    public void setArmyProfessionalism(Double armyProfessionalism) {
+        if (armyProfessionalism == null) {
+            this.armyProfessionalism = 0d;
+        } else {
+            this.armyProfessionalism = armyProfessionalism;
+        }
     }
 
-    public Double getMaxManpower () {
+    public List<String> getGovernmentReforms () {
+        return governmentReforms;
+    }
+
+    public void setGovernmentReforms (List<String> governmentReforms) {
+        this.governmentReforms = governmentReforms;
+    }
+
+    public Double getMaxManpower() {
         return maxManpower;
     }
 
-    public void setMaxManpower (Double maxManpower) {
+    public void setMaxManpower(Double maxManpower) {
         this.maxManpower = maxManpower;
     }
 
-    public Double getMaxSailors () {
+    public Double getMaxSailors() {
         return maxSailors;
     }
 
-    public void setMaxSailors (Double maxSailors) {
+    public void setMaxSailors(Double maxSailors) {
         this.maxSailors = maxSailors;
     }
 
-    public List<Integer> getLosses () {
+    public List<Integer> getLosses() {
         return losses;
     }
 
-    public void setLosses (List<Integer> losses) {
+    public void setLosses(List<Integer> losses) {
         this.losses = losses;
     }
 
-    public Double getInnovativeness () {
+    public Double getInnovativeness() {
         return innovativeness;
     }
 
-    public void setInnovativeness (Double innovativeness) {
+    public void setInnovativeness(Double innovativeness) {
         this.innovativeness = innovativeness;
     }
 
-    public Double getGovernmentReformProgress () {
+    public Double getGovernmentReformProgress() {
         return governmentReformProgress;
     }
 
-    public void setGovernmentReformProgress (Double governmentReformProgress) {
+    public void setGovernmentReformProgress(Double governmentReformProgress) {
         this.governmentReformProgress = governmentReformProgress;
     }
 
     @Override
     public String toString () {
         return "Country{" +
-                "player='" + player + '\'' +
+                "tag='" + tag + '\'' +
+                ", player='" + player + '\'' +
                 ", governmentRank=" + governmentRank +
                 ", governmentName='" + governmentName + '\'' +
                 ", continents=" + continents +
@@ -444,7 +475,6 @@ public class Country {
                 ", technologyGroup='" + technologyGroup + '\'' +
                 ", unitType='" + unitType + '\'' +
                 ", technologies=" + technologies +
-                ", estates=" + estates +
                 ", rivals=" + rivals +
                 ", enemies=" + enemies +
                 ", activePolicies=" + activePolicies +
@@ -465,6 +495,7 @@ public class Country {
                 ", splendor=" + splendor +
                 ", ideas=" + ideas +
                 ", armyProfessionalism=" + armyProfessionalism +
+                ", governmentReforms=" + governmentReforms +
                 ", maxManpower=" + maxManpower +
                 ", maxSailors=" + maxSailors +
                 ", losses=" + losses +

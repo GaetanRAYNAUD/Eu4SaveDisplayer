@@ -7,7 +7,7 @@ import com.graynaud.eu4savedisplayerbo.model.save.war.War;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
+import java.util.SortedSet;
 
 public class Eu4Save {
 
@@ -37,7 +37,7 @@ public class Eu4Save {
 
     private List<Country> countries;
 
-    private Set<War> activeWars; //treeset
+    private SortedSet<War> wars;
 
     public Date getDate () {
         return date;
@@ -143,11 +143,11 @@ public class Eu4Save {
         this.countries = countries;
     }
 
-    public Set<War> getActiveWars () {
-        return activeWars;
+    public SortedSet<War> getWars() {
+        return wars;
     }
 
-    public void setActiveWars (Set<War> activeWars) {
-        this.activeWars = activeWars;
+    public void setWars(SortedSet<War> wars) {
+        this.wars = wars;
     }
 }
