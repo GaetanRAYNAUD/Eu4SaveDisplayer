@@ -24645,7 +24645,7 @@ function (_React$Component) {
   }, {
     key: "render",
     value: function render() {
-      return React.createElement("div", null, "Test");
+      return React.createElement("div", null, React.createElement("div", null, "Test"), React.createElement("div", null, "Test"));
     }
   }]);
 
