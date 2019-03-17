@@ -1,10 +1,11 @@
 package com.graynaud.eu4savedisplayerbo.model.save.province;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Province {
+public class Province implements Serializable {
 
     private Integer id = 0;
 

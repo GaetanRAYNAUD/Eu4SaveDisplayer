@@ -1,11 +1,12 @@
 package com.graynaud.eu4savedisplayerbo.model.save.war;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-public class War implements Comparable<War> {
+public class War implements Comparable<War> , Serializable {
     private String name;
 
     private Boolean active;

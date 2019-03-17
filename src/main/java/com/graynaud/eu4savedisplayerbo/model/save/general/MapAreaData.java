@@ -1,8 +1,9 @@
 package com.graynaud.eu4savedisplayerbo.model.save.general;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class MapAreaData {
+public class MapAreaData implements Serializable {
     private String key;
 
     private List<CountryState> countryStates;

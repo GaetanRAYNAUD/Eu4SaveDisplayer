@@ -7,7 +7,6 @@ import com.graynaud.eu4savedisplayerbo.model.save.Eu4Save;
 import com.graynaud.eu4savedisplayerbo.repository.SaveRepository;
 import com.graynaud.eu4savedisplayerbo.service.error.CampaignNotFoundException;
 import com.graynaud.eu4savedisplayerbo.service.error.UserNotFoundException;
-import com.graynaud.eu4savedisplayerbo.utils.SaveReadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -31,12 +30,15 @@ public class SaveServiceImpl implements SaveService {
 
     private final UserService userService;
 
-    public SaveServiceImpl (SaveRepository saveRepository, CampaignService campaignService, FileServiceImpl fileServiceImpl,
-                            UserService userService) {
+    private final SaveReadService saveReadService;
+
+    public SaveServiceImpl(SaveRepository saveRepository, CampaignService campaignService, FileServiceImpl fileServiceImpl,
+                           UserService userService, SaveReadService saveReadService) {
         this.saveRepository = saveRepository;
         this.campaignService = campaignService;
         this.fileService = fileServiceImpl;
         this.userService = userService;
+        this.saveReadService = saveReadService;
     }
 
     @Override
@@ -89,12 +91,12 @@ public class SaveServiceImpl implements SaveService {
             throw new UserNotFoundException("Can't find user by name: " + authorName);
         }
 
-        Eu4Save eu4Save = SaveReadUtils.readSaveContent(file);
+        Eu4Save eu4Save = saveReadService.readSaveContent(file, campaignName);
         save.setDate(eu4Save.getDate());
         save.setVersion(eu4Save.getSaveGameVersion().toString());
 
         String fileName = campaign.getName() + "_" + campaign.getSaves().size() + ".json";
-        save.setFile(fileService.saveToGzipFile(SaveReadUtils.saveToJsonByteArray(eu4Save), fileName));
+        save.setFile(fileService.saveToGzipFile(saveReadService.saveToJsonByteArray(eu4Save), fileName));
 
         try {
             save = this.create(save);

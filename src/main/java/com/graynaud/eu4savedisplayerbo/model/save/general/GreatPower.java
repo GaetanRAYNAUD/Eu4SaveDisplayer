@@ -1,6 +1,8 @@
 package com.graynaud.eu4savedisplayerbo.model.save.general;
 
-public class GreatPower {
+import java.io.Serializable;
+
+public class GreatPower implements Serializable {
     private String country;
 
     private Double value;

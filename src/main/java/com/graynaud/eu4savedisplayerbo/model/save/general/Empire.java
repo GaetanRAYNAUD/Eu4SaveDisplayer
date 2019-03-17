@@ -1,10 +1,11 @@
 package com.graynaud.eu4savedisplayerbo.model.save.general;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 import java.util.SortedSet;
 
-public class Empire {
+public class Empire implements Serializable {
     private String emperor;
 
     private Double imperialInfluence;

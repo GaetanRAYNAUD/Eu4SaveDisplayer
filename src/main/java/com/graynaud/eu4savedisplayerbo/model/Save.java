@@ -111,4 +111,18 @@ public class Save implements Serializable {
     public void setPlayers (Set<User> players) {
         this.players = players;
     }
+
+    @Override
+    public String toString() {
+        return "Save{" +
+               "id=" + id +
+               ", date=" + date +
+               ", version='" + version + '\'' +
+               ", file='" + file + '\'' +
+               ", creationDate=" + creationDate +
+               ", author=" + author +
+               ", campaign=" + campaign +
+               ", players=" + players +
+               '}';
+    }
 }

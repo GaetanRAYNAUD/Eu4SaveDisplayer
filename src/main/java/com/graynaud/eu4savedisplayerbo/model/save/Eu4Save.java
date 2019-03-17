@@ -5,11 +5,12 @@ import com.graynaud.eu4savedisplayerbo.model.save.general.*;
 import com.graynaud.eu4savedisplayerbo.model.save.province.Province;
 import com.graynaud.eu4savedisplayerbo.model.save.war.War;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.SortedSet;
 
-public class Eu4Save {
+public class Eu4Save implements Serializable {
 
     private Date date;
 
@@ -23,11 +24,11 @@ public class Eu4Save {
 
     private List<MapAreaData> mapAreaData;
 
-    private List<Institution> institutions; //Arraylist
+    private List<Institution> institutions;
 
-    private List<String> productionsLeader; //Arraylist
+    private List<String> productionsLeader;
 
-    private List<GreatPower> greatPowers; //arraylist
+    private List<GreatPower> greatPowers;
 
     private Empire empire;
 

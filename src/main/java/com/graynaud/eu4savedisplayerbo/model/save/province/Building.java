@@ -1,6 +1,8 @@
 package com.graynaud.eu4savedisplayerbo.model.save.province;
 
-public class Building {
+import java.io.Serializable;
+
+public class Building implements Serializable {
     private String name;
 
     private String builder;

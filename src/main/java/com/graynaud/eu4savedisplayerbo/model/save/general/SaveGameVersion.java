@@ -1,8 +1,9 @@
 package com.graynaud.eu4savedisplayerbo.model.save.general;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class SaveGameVersion {
+public class SaveGameVersion implements Serializable {
 
     private Integer first;
 

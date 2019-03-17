@@ -1,6 +1,8 @@
 package com.graynaud.eu4savedisplayerbo.model.save.general;
 
-public class Institution {
+import java.io.Serializable;
+
+public class Institution implements Serializable {
     private Boolean enabled;
 
     private Integer origin;

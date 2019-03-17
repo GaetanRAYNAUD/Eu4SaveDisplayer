@@ -1,8 +1,9 @@
 package com.graynaud.eu4savedisplayerbo.model.save.general;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class OldEmperor implements Comparable<OldEmperor> {
+public class OldEmperor implements Comparable<OldEmperor>, Serializable {
     private String country;
 
     private Date date;

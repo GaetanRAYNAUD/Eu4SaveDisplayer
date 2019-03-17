@@ -2,11 +2,12 @@ package com.graynaud.eu4savedisplayerbo.model.save.country;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class Country {
+public class Country implements Serializable {
 
     private String tag;
 

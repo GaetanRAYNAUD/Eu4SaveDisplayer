@@ -1,6 +1,8 @@
 package com.graynaud.eu4savedisplayerbo.model.save.general;
 
-public class CountryState {
+import java.io.Serializable;
+
+public class CountryState implements Serializable {
     private Double prosperity;
 
     private String country;

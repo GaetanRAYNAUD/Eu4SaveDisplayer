@@ -1,4 +1,4 @@
-package com.graynaud.eu4savedisplayerbo.utils;
+package com.graynaud.eu4savedisplayerbo.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.graynaud.eu4savedisplayerbo.model.save.Eu4Save;
@@ -10,6 +10,8 @@ import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -21,20 +23,24 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class SaveReadUtils {
+@Service
+public class SaveReadServiceImpl implements SaveReadService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SaveReadUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SaveReadServiceImpl.class);
 
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy.M.d");
 
-    public static byte[] saveToJsonByteArray (Eu4Save save) throws IOException {
+    @Override
+    public byte[] saveToJsonByteArray(Eu4Save save) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
 
         return objectMapper.writeValueAsBytes(save);
     }
 
-    public static Eu4Save readSaveContent (MultipartFile file) throws ParseException, IOException {
+    @Override
+    @CachePut(value = "saveCache", key = "#campaignName+#result.date.time")
+    public Eu4Save readSaveContent (MultipartFile file, String campaignName) throws ParseException, IOException {
         String data = new String(file.getBytes(), "Windows-1252");
         Eu4Save save = new Eu4Save();
         save.setDate(extractSaveDate(data));
@@ -78,7 +84,7 @@ public class SaveReadUtils {
         String subData = StringUtils.substring(data, start, end);
 
         return readListString(subData).stream()
-                .map(SaveReadUtils::readSimpleString)
+                .map(SaveReadServiceImpl::readSimpleString)
                 .map(DLC::getByName)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
@@ -154,7 +160,7 @@ public class SaveReadUtils {
                 .collect(Collectors.toList());
 
         List<List<String>> infos = datas.stream()
-                .map(SaveReadUtils::readSameLineListString)
+                .map(SaveReadServiceImpl::readSameLineListString)
                 .collect(Collectors.toList());
 
         List<Institution> institutions = new ArrayList<>();
@@ -301,7 +307,7 @@ public class SaveReadUtils {
         String subDataPlayers = StringUtils.substring(data, startPlayers, endPlayers).trim();
 
         List<String> playersData = Arrays.stream(subDataPlayers.split("\n"))
-                .map(SaveReadUtils::readSimpleString)
+                .map(SaveReadServiceImpl::readSimpleString)
                 .filter(StringUtils::isNotBlank)
                 .collect(Collectors.toList());
 
@@ -390,7 +396,7 @@ public class SaveReadUtils {
         }
 
         return getListOfValues(subData, "Can't parse technology data: {}")
-                .map(SaveReadUtils::readSimpleInteger)
+                .map(SaveReadServiceImpl::readSimpleInteger)
                 .collect(Collectors.toList());
     }
 
@@ -406,7 +412,7 @@ public class SaveReadUtils {
                                       .collect(Collectors.toList());
 
         return amounts.stream()
-                      .map(SaveReadUtils::readSimpleInteger)
+                      .map(SaveReadServiceImpl::readSimpleInteger)
                       .filter(Objects::nonNull)
                       .mapToInt(Integer::intValue)
                       .sum();
@@ -450,7 +456,7 @@ public class SaveReadUtils {
         }
 
         return readListString(reformsString).stream()
-                               .map(SaveReadUtils::readSimpleString)
+                               .map(SaveReadServiceImpl::readSimpleString)
                                .filter(StringUtils::isNotBlank)
                                .collect(Collectors.toList());
     }
@@ -599,7 +605,7 @@ public class SaveReadUtils {
 
         return Arrays.stream(data.trim().split("\n"))
                 .filter(StringUtils::isNotBlank)
-                .map(SaveReadUtils::readSimpleString)
+                .map(SaveReadServiceImpl::readSimpleString)
                 .collect(Collectors.toList());
     }
 
@@ -610,7 +616,7 @@ public class SaveReadUtils {
 
         return Arrays.stream(data.trim().split(" "))
                 .filter(StringUtils::isNotBlank)
-                .map(SaveReadUtils::readSimpleString)
+                .map(SaveReadServiceImpl::readSimpleString)
                 .collect(Collectors.toList());
     }
 
@@ -621,7 +627,7 @@ public class SaveReadUtils {
 
         return Arrays.stream(data.trim().split(" "))
                 .filter(StringUtils::isNotBlank)
-                .map(SaveReadUtils::readSimpleInteger)
+                .map(SaveReadServiceImpl::readSimpleInteger)
                 .collect(Collectors.toList());
     }
 
@@ -632,7 +638,7 @@ public class SaveReadUtils {
 
         return Arrays.stream(data.trim().split(" "))
                 .filter(StringUtils::isNotBlank)
-                .map(SaveReadUtils::readSimpleBoolean)
+                .map(SaveReadServiceImpl::readSimpleBoolean)
                 .collect(Collectors.toList());
     }
 
@@ -643,7 +649,7 @@ public class SaveReadUtils {
 
         return Arrays.stream(data.trim().split(" "))
                 .filter(StringUtils::isNotBlank)
-                .map(SaveReadUtils::readSimpleDouble)
+                .map(SaveReadServiceImpl::readSimpleDouble)
                 .collect(Collectors.toList());
     }
 }
